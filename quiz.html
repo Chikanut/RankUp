@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizForge - Тест</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Quiz Header -->
+        <header class="quiz-header">
+            <div class="quiz-progress">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div class="progress-text">
+                    <span id="current-question">1</span> / <span id="total-questions">10</span>
+                </div>
+            </div>
+            <button id="quit-btn" class="quit-btn">✕ Вийти</button>
+        </header>
+
+        <!-- Quiz Container -->
+        <main id="quiz-container" class="quiz-main">
+            <div class="loading">Завантаження тесту...</div>
+        </main>
+
+        <!-- Quiz Controls -->
+        <div id="quiz-controls" class="quiz-controls" style="display: none;">
+            <button id="prev-btn" class="control-btn secondary" disabled>← Назад</button>
+            <button id="next-btn" class="control-btn primary">Далі →</button>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2>🎉 Результати тесту</h2>
+            <div id="results-content"></div>
+            <div class="modal-actions">
+                <button id="retry-btn" class="control-btn primary">🔄 Пройти знову</button>
+                <button id="home-btn" class="control-btn secondary">🏠 На головну</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/quiz-engine.js"></script>
+</body>
+</html>

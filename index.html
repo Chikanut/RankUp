@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="QuizForge - інтерактивна платформа для підготовки через тестування">
+    <title>QuizForge - Головна</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">⚒️ QuizForge</h1>
+                <p class="tagline">Кузня твоїх знань</p>
+            </div>
+            <nav class="header-nav">
+                <button id="stats-btn" class="nav-btn">📊 Статистика</button>
+                <button id="settings-btn" class="nav-btn">⚙️ Налаштування</button>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Search and Filters -->
+            <div class="controls">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    class="search-input" 
+                    placeholder="🔍 Пошук тестів..."
+                >
+                <select id="category-filter" class="filter-select">
+                    <option value="all">Всі категорії</option>
+                </select>
+                <select id="difficulty-filter" class="filter-select">
+                    <option value="all">Всі рівні</option>
+                    <option value="easy">Легкий</option>
+                    <option value="medium">Середній</option>
+                    <option value="hard">Складний</option>
+                </select>
+            </div>
+
+            <!-- Tests Catalog -->
+            <div id="tests-catalog" class="tests-grid">
+                <!-- Тести будуть завантажені динамічно через JS -->
+                <div class="loading">Завантаження тестів...</div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>QuizForge v0.2.0 | Розроблено з 💙 для ефективного навчання</p>
+        </footer>
+    </div>
+
+    <!-- Підключаємо JavaScript -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
