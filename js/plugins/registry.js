@@ -3,8 +3,9 @@
  */
 
 import MultipleChoicePlugin from './multiple-choice.js';
-// import FlashcardsPlugin from './flashcards.js';
-// import TrueFalsePlugin from './true-false.js';
+import FlashcardPlugin from './flashcard.js';
+import TrueFalsePlugin from './true-false.js';
+import MatchingPlugin from './matching-plugin.js';
 
 class PluginRegistry {
   constructor() {
@@ -22,8 +23,9 @@ class PluginRegistry {
     
     // Зареєструвати доступні плагіни
     this.register(MultipleChoicePlugin);
-    // this.register(FlashcardsPlugin);
-    // this.register(TrueFalsePlugin);
+    this.register(FlashcardPlugin);
+    this.register(TrueFalsePlugin);
+    this.register(MatchingPlugin);
     
     console.log(`✅ Registered ${this.plugins.size} plugins`);
   }
