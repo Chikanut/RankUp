@@ -1762,33 +1762,34 @@ tr:hover td {
   */
 
   .matching-task-area {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      position: relative; /* Батьківський контейнер для позиціонування SVG */
-      padding: 20px 0;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  isolation: isolate;
+}
 
   .matching-column {
-      flex: 0 0 45%; /* Дві колонки займають 45% кожна */
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-  }
+  flex: 0 0 45%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
   .matching-item {
-      /* Базовий стиль для кнопок */
-      width: 100%;
-      text-align: left;
-      padding: 12px;
-      border: 2px solid var(--border-color);
-      border-radius: 8px;
-      background-color: var(--background-color);
-      cursor: pointer;
-      transition: background-color 0.2s, border-color 0.2s;
-      font-size: 16px;
-      min-height: 50px; /* Для вирівнювання ліній */
-  }
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 16px;
+  text-align: left;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.matching-item:hover {
+  transform: scale(1.03);
+}
 
   /* 1. Кольоровий фон для ПИТАННЯ */
   .question-item {
@@ -1805,14 +1806,16 @@ tr:hover td {
 
   /* 3. Конекшн-шар (SVG) */
   .connection-layer {
-      position: absolute;
-      top: 0;
-      left: 45%; /* Починається після першої колонки */
-      width: 10%; /* Ширина між колонками */
-      height: 100%;
-      pointer-events: none; /* Щоб можна було клікати на елементи під ним */
-      overflow: visible; /* Якщо лінії виходять за межі */
-  }
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  background: transparent !important;   /* <— ось головне */
+  mix-blend-mode: normal !important;    /* не дозволяє сіре змішування */
+}
 
   /* 4. Фінальна валідація */
   .matching-item.correct {
