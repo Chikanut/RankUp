@@ -1,0 +1,20 @@
+QuizForge v0.3.0 - Структура проекту
+
+📄 PROJECT_STRUCTURE.txt
+📝 QUICKSTART.md
+📝 README.md
+📁 assets/
+📁 css/
+  🎨 style.css
+📁 data/
+  📁 tests/
+  📊 tests.json
+    📊 leadership-course.json
+🌐 index.html
+📁 js/
+  📁 plugins/
+    ⚙️ base-plugin.js
+    ⚙️ multiple-choice.js
+    ⚙️ registry.js
+  ⚙️ quiz-controller.js
+🌐 quiz.html

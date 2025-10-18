@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizForge - Налаштування</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    
+    <!-- Header -->
+    <header class="settings-header">
+      <button class="btn-back" onclick="window.location.href='index.html'">
+        ← Назад до каталогу
+      </button>
+      <div>
+        <h1>⚙️ Налаштування</h1>
+        <p class="muted">Керування додатком та даними</p>
+      </div>
+    </header>
+    
+    <!-- Налаштування -->
+    <div class="settings-container">
+      
+      <!-- Керування даними -->
+      <section class="settings-section">
+        <h2>💾 Керування даними</h2>
+        
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h3>Використання пам'яті</h3>
+            <p class="muted">Скільки місця займають ваші дані</p>
+          </div>
+          <div class="settings-item-value">
+            <div id="storageUsage" class="storage-info">
+              <!-- JS заповнить -->
+            </div>
+          </div>
+        </div>
+        
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h3>Експорт даних</h3>
+            <p class="muted">Збережіть всю статистику у файл JSON</p>
+          </div>
+          <div class="settings-item-action">
+            <button class="btn-primary" id="exportBtn">
+              📥 Експортувати
+            </button>
+          </div>
+        </div>
+        
+        <div class="settings-item">
+          <div class="settings-item-info">
+            <h3>Імпорт даних</h3>
+            <p class="muted">Завантажте збережену статистику з файлу</p>
+          </div>
+          <div class="settings-item-action">
+            <input 
+              type="file" 
+              id="importFile" 
+              accept=".json" 
+              style="display: none;"
+            />
+            <button class="btn-primary" id="importBtn">
+              📤 Імпортувати
+            </button>
+          </div>
+        </div>
+        
+        <div class="settings-item danger">
+          <div class="settings-item-info">
+            <h3>Очистити всю історію</h3>
+            <p class="muted">⚠️ Видалить всі результати тестів. Не можна скасувати!</p>
+          </div>
+          <div class="settings-item-action">
+            <button class="btn-ghost btn-danger" id="clearAllBtn">
+              🗑️ Очистити все
+            </button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Про програму -->
+      <section class="settings-section">
+        <h2>ℹ️ Про програму</h2>
+        
+        <div class="about-grid">
+          <div class="about-item">
+            <div class="about-label">Назва</div>
+            <div class="about-value">QuizForge</div>
+          </div>
+          
+          <div class="about-item">
+            <div class="about-label">Версія</div>
+            <div class="about-value">0.3.0</div>
+          </div>
+          
+          <div class="about-item">
+            <div class="about-label">Дата релізу</div>
+            <div class="about-value">18 жовтня 2025</div>
+          </div>
+          
+          <div class="about-item">
+            <div class="about-label">Розробник</div>
+            <div class="about-value">СІГСПП молодший сержант Войтович Євген</div>
+          </div>
+          
+          <div class="about-item">
+            <div class="about-label">Технології</div>
+            <div class="about-value">HTML5, CSS3, Vanilla JavaScript (ES6+)</div>
+          </div>
+          
+          <div class="about-item">
+            <div class="about-label">Ліцензія</div>
+            <div class="about-value">MIT License</div>
+          </div>
+        </div>
+        
+        <div class="about-description">
+          <p><strong>QuizForge</strong> - модульна платформа інтерактивного навчання через тестування.</p>
+          <p class="muted">Працює повністю офлайн. Всі дані зберігаються локально в пам'яті браузера. Немає відправки даних на сервер.</p>
+        </div>
+        
+        <div class="about-links">
+          <a href="https://github.com" target="_blank" class="btn-ghost">
+            🌐 GitHub
+          </a>
+          <button class="btn-ghost" id="changelogBtn">
+            📋 Changelog
+          </button>
+        </div>
+      </section>
+      
+    </div>
+    
+  </div>
+  
+  <!-- Modal для Changelog -->
+  <div id="changelogModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>📋 Changelog</h2>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="changelog-entry">
+          <h3>v0.3.0 <span class="badge badge-accent">Поточна</span></h3>
+          <p class="muted">18 жовтня 2025</p>
+          <ul>
+            <li>✅ Повна модульна архітектура з плагінами</li>
+            <li>✅ Плагін Multiple Choice (вибір з варіантів)</li>
+            <li>✅ Динамічна валідація режимів</li>
+            <li>✅ Повний цикл тестування</li>
+            <li>✅ Статистика з графіками</li>
+            <li>✅ Налаштування та керування даними</li>
+            <li>✅ 100 питань для тесту "Курс лідерства"</li>
+            <li>✅ Responsive дизайн</li>
+          </ul>
+        </div>
+        
+        <div class="changelog-entry">
+          <h3>v0.2.0</h3>
+          <p class="muted">Попередня версія</p>
+          <ul>
+            <li>Створення базової структури</li>
+            <li>Перехід з однофайлового рішення</li>
+          </ul>
+        </div>
+        
+        <div class="changelog-entry">
+          <h3>v0.1.4</h3>
+          <p class="muted">Оригінальна версія</p>
+          <ul>
+            <li>Однофайловий HTML додаток</li>
+            <li>Базове тестування</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Підключення скриптів -->
+  <script type="module">
+    import analytics from './js/analytics.js';
+    
+    // Показати використання пам'яті
+    function displayStorageUsage() {
+      const storage = analytics.getStorageSize();
+      const container = document.getElementById('storageUsage');
+      
+      const color = storage.percentage > 80 
+        ? 'var(--accent-red)' 
+        : storage.percentage > 50 
+          ? 'var(--accent-yellow)' 
+          : 'var(--accent-green)';
+      
+      container.innerHTML = `
+        <div class="storage-bar">
+          <div class="storage-fill" style="width: ${storage.percentage}%; background: ${color};"></div>
+        </div>
+        <div class="storage-text">
+          <strong>${storage.usedKB} KB</strong> з ${storage.limitMB} MB (${storage.percentage}%)
+        </div>
+      `;
+    }
+    
+    // Експорт даних
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      try {
+        const data = analytics.exportData();
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `quizforge-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('✅ Дані експортовано успішно!');
+      } catch (e) {
+        console.error('Export failed:', e);
+        alert('❌ Помилка експорту: ' + e.message);
+      }
+    });
+    
+    // Імпорт даних
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('importFile').click();
+    });
+    
+    document.getElementById('importFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = JSON.parse(event.target.result);
+          const success = analytics.importData(data);
+          
+          if (success) {
+            alert('✅ Дані імпортовано успішно!');
+            displayStorageUsage();
+          } else {
+            alert('❌ Помилка імпорту даних');
+          }
+        } catch (e) {
+          console.error('Import failed:', e);
+          alert('❌ Помилка імпорту: ' + e.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+    
+    // Очистити всю історію
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      const confirmed = confirm(
+        '⚠️ УВАГА!\n\n' +
+        'Ви дійсно хочете видалити ВСЮ історію проходжень?\n\n' +
+        '• Всі результати тестів будуть втрачені\n' +
+        '• Всю статистику буде видалено\n' +
+        '• Цю дію не можна скасувати!\n\n' +
+        'Рекомендуємо спочатку зробити експорт даних.'
+      );
+      
+      if (!confirmed) return;
+      
+      const doubleCheck = confirm('Ви абсолютно впевнені? Це остання перевірка.');
+      
+      if (!doubleCheck) return;
+      
+      analytics.clearAllHistory();
+      displayStorageUsage();
+      
+      alert('✅ Всю історію видалено!');
+    });
+    
+    // Показати Changelog
+    document.getElementById('changelogBtn').addEventListener('click', () => {
+      document.getElementById('changelogModal').classList.remove('hidden');
+    });
+    
+    window.closeModal = function() {
+      document.getElementById('changelogModal').classList.add('hidden');
+    };
+    
+    // Закрити modal при кліку на фон
+    document.getElementById('changelogModal').addEventListener('click', (e) => {
+      if (e.target.id === 'changelogModal') {
+        closeModal();
+      }
+    });
+    
+    // Ініціалізація
+    window.addEventListener('DOMContentLoaded', () => {
+      displayStorageUsage();
+    });
+  </script>
+</body>
+</html>

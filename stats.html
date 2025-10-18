@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizForge - Статистика</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    
+    <!-- Header -->
+    <header class="stats-header">
+      <button class="btn-back" onclick="window.location.href='index.html'">
+        ← Назад до каталогу
+      </button>
+      <div>
+        <h1>📊 Статистика</h1>
+        <p class="muted">Ваш прогрес та досягнення</p>
+      </div>
+    </header>
+    
+    <!-- Загальна статистика -->
+    <section class="global-stats" id="globalStats">
+      <!-- Генерується JS -->
+    </section>
+    
+    <!-- Список тестів з історією -->
+    <section class="tests-stats" id="testsStats">
+      <h2>📚 Тести з історією</h2>
+      <div id="testsStatsList">
+        <!-- Генерується JS -->
+      </div>
+    </section>
+    
+    <!-- Детальна статистика (показується при кліку) -->
+    <section class="detailed-stats hidden" id="detailedStats">
+      <!-- Генерується JS -->
+    </section>
+    
+  </div>
+  
+  <!-- Loading screen -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-spinner"></div>
+    <p>Завантаження статистики...</p>
+  </div>
+  
+  <!-- Підключення скриптів -->
+  <script type="module">
+    import analytics from './js/analytics.js';
+    
+    let masterConfig = null;
+    let currentDetailedTest = null;
+    
+    // Завантажити конфігурацію тестів
+    async function loadConfig() {
+      const response = await fetch('data/tests.json');
+      masterConfig = await response.json();
+    }
+    
+    // Знайти інформацію про тест
+    function getTestInfo(testId) {
+      if (!masterConfig) return null;
+      return masterConfig.tests.find(t => t.id === testId);
+    }
+    
+    // Рендер загальної статистики
+    function renderGlobalStats() {
+      const stats = analytics.getGlobalStats();
+      const container = document.getElementById('globalStats');
+      
+      if (stats.totalTests === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📊</div>
+            <h3>Поки що немає статистики</h3>
+            <p class="muted">Пройдіть хоча б один тест щоб побачити свій прогрес</p>
+            <button class="btn-primary" onclick="window.location.href='index.html'">
+              Перейти до тестів
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      const hours = Math.floor(stats.totalTimeSpent / 3600);
+      const minutes = Math.floor((stats.totalTimeSpent % 3600) / 60);
+      const timeText = hours > 0 
+        ? `${hours}г ${minutes}хв` 
+        : `${minutes}хв`;
+      
+      container.innerHTML = `
+        <h2>📈 Загальна статистика</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-value">${stats.totalTests}</div>
+            <div class="stat-label">Тестів з історією</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-value">${stats.totalAttempts}</div>
+            <div class="stat-label">Всього спроб</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value">${stats.totalQuestions}</div>
+            <div class="stat-label">Питань пройдено</div>
+          </div>
+          
+          <div class="stat-card ${stats.averagePercentage >= 70 ? 'success' : ''}">
+            <div class="stat-icon">✨</div>
+            <div class="stat-value">${stats.averagePercentage}%</div>
+            <div class="stat-label">Середній результат</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">${stats.totalCorrect}</div>
+            <div class="stat-label">Правильних відповідей</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value">${timeText}</div>
+            <div class="stat-label">Витрачено часу</div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Рендер списку тестів
+    function renderTestsList() {
+      const globalStats = analytics.getGlobalStats();
+      const container = document.getElementById('testsStatsList');
+      
+      if (globalStats.testsWithHistory.length === 0) {
+        container.innerHTML = '<p class="muted">Немає тестів з історією</p>';
+        return;
+      }
+      
+      container.innerHTML = globalStats.testsWithHistory.map(test => {
+        const testInfo = getTestInfo(test.testId);
+        const stats = analytics.getTestStats(test.testId);
+        
+        const title = testInfo?.title || test.testId;
+        const icon = testInfo?.icon || '📝';
+        
+        return `
+          <div class="test-stat-card" data-test-id="${test.testId}">
+            <div class="test-stat-header">
+              <div class="test-stat-icon">${icon}</div>
+              <div class="test-stat-info">
+                <h3>${title}</h3>
+                <div class="test-stat-meta">
+                  <span class="badge">Спроб: ${stats.attempts}</span>
+                  <span class="badge">Середній: ${stats.averageScore}%</span>
+                  <span class="badge ${stats.improvement >= 0 ? 'badge-success' : 'badge-error'}">
+                    ${stats.improvement >= 0 ? '↗' : '↘'} ${Math.abs(stats.improvement)}%
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="progress-bar-large">
+              <div class="progress-fill" style="width: ${stats.averageScore}%"></div>
+              <span class="progress-text">${stats.averageScore}%</span>
+            </div>
+            
+            <div class="test-stat-actions">
+              <button class="btn-ghost btn-sm" onclick="viewDetails('${test.testId}')">
+                📊 Детальна статистика
+              </button>
+              <button class="btn-ghost btn-sm" onclick="clearHistory('${test.testId}')">
+                🗑️ Очистити історію
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Показати детальну статистику
+    window.viewDetails = function(testId) {
+      currentDetailedTest = testId;
+      const stats = analytics.getTestStats(testId);
+      const testInfo = getTestInfo(testId);
+      const container = document.getElementById('detailedStats');
+      
+      const title = testInfo?.title || testId;
+      const icon = testInfo?.icon || '📝';
+      
+      // Підготувати дані для графіка
+      const chartData = analytics.prepareChartData(stats.history);
+      
+      container.innerHTML = `
+        <div class="detailed-header">
+          <button class="btn-back" onclick="closeDetails()">← Назад</button>
+          <div>
+            <h2>${icon} ${title}</h2>
+            <p class="muted">Детальна статистика</p>
+          </div>
+        </div>
+        
+        <div class="detailed-content">
+          <!-- Ключові показники -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">${stats.attempts}</div>
+              <div class="stat-label">Спроб</div>
+            </div>
+            <div class="stat-card success">
+              <div class="stat-value">${stats.bestScore}%</div>
+              <div class="stat-label">Кращий результат</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">${stats.averageScore}%</div>
+              <div class="stat-label">Середній результат</div>
+            </div>
+            <div class="stat-card ${stats.improvement >= 0 ? 'success' : ''}">
+              <div class="stat-value">${stats.improvement >= 0 ? '+' : ''}${stats.improvement}%</div>
+              <div class="stat-label">Покращення</div>
+            </div>
+          </div>
+          
+          <!-- Графік історії -->
+          <div class="chart-container">
+            <h3>📈 Історія проходжень</h3>
+            <canvas id="historyChart" width="800" height="250"></canvas>
+          </div>
+          
+          <!-- Історія спроб -->
+          <div class="history-section">
+            <h3>📋 Історія спроб</h3>
+            <div class="history-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Дата</th>
+                    <th>Результат</th>
+                    <th>Правильно</th>
+                    <th>Час</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${stats.history.map(attempt => {
+                    const date = new Date(attempt.date);
+                    const dateStr = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                    const minutes = Math.floor(attempt.timeSpent / 60);
+                    const seconds = attempt.timeSpent % 60;
+                    
+                    return `
+                      <tr>
+                        <td>${dateStr}</td>
+                        <td><span class="badge ${attempt.percentage >= 70 ? 'badge-success' : ''}">${attempt.percentage}%</span></td>
+                        <td>${attempt.score || attempt.correctCount} / ${attempt.total || attempt.totalQuestions}</td>
+                        <td>${minutes}:${seconds.toString().padStart(2, '0')}</td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Найскладніші питання -->
+          <div class="hardest-questions">
+            <h3>🔥 Найскладніші питання</h3>
+            <p class="muted">Питання в яких ви найчастіше помиляєтесь</p>
+            <div id="hardestQuestions">
+              <!-- Буде заповнено після завантаження питань -->
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Показати секцію
+      container.classList.remove('hidden');
+      container.scrollIntoView({ behavior: 'smooth' });
+      
+      // Намалювати графік
+      drawChart(chartData);
+      
+      // Завантажити та показати найскладніші питання
+      loadHardestQuestions(testId);
+    };
+    
+    // Закрити детальну статистику
+    window.closeDetails = function() {
+      document.getElementById('detailedStats').classList.add('hidden');
+      currentDetailedTest = null;
+    };
+    
+    // Намалювати графік
+    function drawChart(data) {
+      const canvas = document.getElementById('historyChart');
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      const padding = 40;
+      
+      // Очистити canvas
+      ctx.clearRect(0, 0, width, height);
+      
+      if (data.labels.length === 0) {
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '14px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Немає даних для графіка', width / 2, height / 2);
+        return;
+      }
+      
+      // Налаштування
+      const chartWidth = width - padding * 2;
+      const chartHeight = height - padding * 2;
+      const maxValue = 100;
+      const stepX = chartWidth / (data.data.length - 1 || 1);
+      
+      // Фон та сітка
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      
+      // Горизонтальні лінії
+      for (let i = 0; i <= 4; i++) {
+        const y = padding + (chartHeight / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(padding, y);
+        ctx.lineTo(width - padding, y);
+        ctx.stroke();
+        
+        // Підписи
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${100 - i * 25}%`, padding - 10, y + 4);
+      }
+      
+      // Малювання лінії графіка
+      ctx.strokeStyle = '#3b82f6';
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      
+      ctx.beginPath();
+      data.data.forEach((value, index) => {
+        const x = padding + stepX * index;
+        const y = padding + chartHeight - (value / maxValue) * chartHeight;
+        
+        if (index === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      });
+      ctx.stroke();
+      
+      // Точки на графіку
+      data.data.forEach((value, index) => {
+        const x = padding + stepX * index;
+        const y = padding + chartHeight - (value / maxValue) * chartHeight;
+        
+        // Точка
+        ctx.fillStyle = '#3b82f6';
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Обведення
+        ctx.strokeStyle = '#0f1724';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Підпис дати
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(data.labels[index], x, height - 10);
+      });
+    }
+    
+    // Завантажити найскладніші питання
+    async function loadHardestQuestions(testId) {
+      const hardest = analytics.getHardestQuestions(testId, 10);
+      const container = document.getElementById('hardestQuestions');
+      
+      if (hardest.length === 0) {
+        container.innerHTML = '<p class="muted">Недостатньо даних</p>';
+        return;
+      }
+      
+      // Завантажити питання з JSON
+      try {
+        const testInfo = getTestInfo(testId);
+        if (!testInfo) {
+          container.innerHTML = '<p class="muted">Не вдалось завантажити питання</p>';
+          return;
+        }
+        
+        const response = await fetch(testInfo.dataFile);
+        const testData = await response.json();
+        
+        container.innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Питання</th>
+                <th>Спроб</th>
+                <th>% помилок</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${hardest.map((item, index) => {
+                const question = testData.questions.find(q => q.id === item.questionId);
+                const questionText = question?.question || `Питання ${item.questionId}`;
+                
+                return `
+                  <tr>
+                    <td>${index + 1}</td>
+                    <td class="question-text-cell">${questionText}</td>
+                    <td>${item.attempts}</td>
+                    <td><span class="badge badge-error">${item.errorRate}%</span></td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        `;
+      } catch (e) {
+        console.error('Failed to load questions:', e);
+        container.innerHTML = '<p class="muted">Не вдалось завантажити питання</p>';
+      }
+    }
+    
+    // Очистити історію тесту
+    window.clearHistory = function(testId) {
+      const testInfo = getTestInfo(testId);
+      const title = testInfo?.title || testId;
+      
+      if (!confirm(`Ви впевнені що хочете очистити історію тесту "${title}"?\n\nЦю дію не можна скасувати.`)) {
+        return;
+      }
+      
+      analytics.clearTestHistory(testId);
+      
+      // Оновити інтерфейс
+      renderGlobalStats();
+      renderTestsList();
+      
+      // Закрити детальну статистику якщо була відкрита
+      if (currentDetailedTest === testId) {
+        closeDetails();
+      }
+      
+      alert('Історію очищено!');
+    };
+    
+    // Ініціалізація
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await loadConfig();
+        renderGlobalStats();
+        renderTestsList();
+        
+        document.getElementById('loading').style.display = 'none';
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+        document.getElementById('loading').innerHTML = `
+          <div class="error-icon">❌</div>
+          <p>Помилка завантаження статистики</p>
+          <p class="muted">${error.message}</p>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,61 +1,231 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="QuizForge - інтерактивна платформа для підготовки через тестування">
-    <title>QuizForge - Головна</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizForge - Каталог тестів</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-content">
-                <h1 class="logo">⚒️ QuizForge</h1>
-                <p class="tagline">Кузня твоїх знань</p>
-            </div>
-            <nav class="header-nav">
-                <button id="stats-btn" class="nav-btn">📊 Статистика</button>
-                <button id="settings-btn" class="nav-btn">⚙️ Налаштування</button>
-            </nav>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Search and Filters -->
-            <div class="controls">
-                <input 
-                    type="text" 
-                    id="search-input" 
-                    class="search-input" 
-                    placeholder="🔍 Пошук тестів..."
-                >
-                <select id="category-filter" class="filter-select">
-                    <option value="all">Всі категорії</option>
-                </select>
-                <select id="difficulty-filter" class="filter-select">
-                    <option value="all">Всі рівні</option>
-                    <option value="easy">Легкий</option>
-                    <option value="medium">Середній</option>
-                    <option value="hard">Складний</option>
-                </select>
-            </div>
-
-            <!-- Tests Catalog -->
-            <div id="tests-catalog" class="tests-grid">
-                <!-- Тести будуть завантажені динамічно через JS -->
-                <div class="loading">Завантаження тестів...</div>
-            </div>
-        </main>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <p>QuizForge v0.2.0 | Розроблено з 💙 для ефективного навчання</p>
-        </footer>
+  <div class="app">
+    
+    <!-- Header -->
+    <header class="main-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1>🎯 QuizForge</h1>
+          <p class="tagline">Модульна платформа інтерактивного навчання</p>
+        </div>
+        <div class="header-right">
+          <button class="btn-ghost" id="statsBtn">📊 Статистика</button>
+          <button class="btn-ghost" id="settingsBtn">⚙️ Налаштування</button>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Filters -->
+    <div class="filters-section">
+      <div class="search-box">
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="🔍 Пошук тестів..." 
+          class="search-input"
+        />
+      </div>
+      
+      <div class="filters-row">
+        <div class="filter-group">
+          <label>Категорія:</label>
+          <select id="categoryFilter" class="filter-select">
+            <option value="">Всі категорії</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>Складність:</label>
+          <select id="difficultyFilter" class="filter-select">
+            <option value="">Всі рівні</option>
+            <option value="easy">Легко</option>
+            <option value="medium">Середньо</option>
+            <option value="hard">Складно</option>
+          </select>
+        </div>
+        
+        <button class="btn-ghost" id="clearFilters">Скинути фільтри</button>
+      </div>
     </div>
-
-    <!-- Підключаємо JavaScript -->
-    <script type="module" src="js/main.js"></script>
+    
+    <!-- Tests Grid -->
+    <div id="testsGrid" class="tests-grid">
+      <!-- Картки тестів генеруються JS -->
+    </div>
+    
+    <!-- Footer -->
+    <footer class="main-footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <p>QuizForge v0.3.0</p>
+          <p class="muted">Розробник: СІГСПП молодший сержант Войтович Євген</p>
+        </div>
+        <div class="footer-right">
+          <p class="muted">Працює офлайн • Дані зберігаються локально</p>
+        </div>
+      </div>
+    </footer>
+    
+  </div>
+  
+  <!-- Loading screen -->
+  <div id="loading" class="loading-screen">
+    <div class="loading-spinner"></div>
+    <p>Завантаження каталогу...</p>
+  </div>
+  
+  <!-- Підключення скриптів -->
+  <script type="module">
+    // Завантажити конфіг тестів
+    let config = null;
+    
+    async function loadConfig() {
+      const response = await fetch('data/tests.json');
+      config = await response.json();
+      return config;
+    }
+    
+    // Рендер карток тестів
+    function renderTests(tests) {
+      const grid = document.getElementById('testsGrid');
+      
+      if (tests.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3>Тести не знайдено</h3>
+            <p class="muted">Спробуйте змінити фільтри</p>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = tests.map(test => `
+        <div class="test-card" data-test-id="${test.id}">
+          <div class="test-icon">${test.icon}</div>
+          <h3 class="test-title">${test.title}</h3>
+          <p class="test-description">${test.description}</p>
+          
+          <div class="test-meta">
+            <span class="badge">${test.totalQuestions} питань</span>
+            <span class="badge">${test.estimatedTime}</span>
+            <span class="badge badge-${test.difficulty}">${getDifficultyText(test.difficulty)}</span>
+          </div>
+          
+          <div class="test-tags">
+            ${test.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+          </div>
+          
+          <button class="btn-primary btn-block" onclick="startTest('${test.id}')">
+            Почати тест →
+          </button>
+        </div>
+      `).join('');
+    }
+    
+    function getDifficultyText(difficulty) {
+      const map = {
+        'easy': 'Легко',
+        'medium': 'Середньо',
+        'hard': 'Складно'
+      };
+      return map[difficulty] || difficulty;
+    }
+    
+    // Фільтрація тестів
+    function filterTests() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const category = document.getElementById('categoryFilter').value;
+      const difficulty = document.getElementById('difficultyFilter').value;
+      
+      let filtered = config.tests.filter(test => test.enabled);
+      
+      // Пошук
+      if (searchTerm) {
+        filtered = filtered.filter(test =>
+          test.title.toLowerCase().includes(searchTerm) ||
+          test.description.toLowerCase().includes(searchTerm) ||
+          test.tags.some(tag => tag.toLowerCase().includes(searchTerm))
+        );
+      }
+      
+      // Категорія
+      if (category) {
+        filtered = filtered.filter(test => test.category === category);
+      }
+      
+      // Складність
+      if (difficulty) {
+        filtered = filtered.filter(test => test.difficulty === difficulty);
+      }
+      
+      renderTests(filtered);
+    }
+    
+    // Заповнити фільтр категорій
+    function populateFilters() {
+      const categoryFilter = document.getElementById('categoryFilter');
+      
+      config.categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat.id;
+        option.textContent = `${cat.icon} ${cat.name}`;
+        categoryFilter.appendChild(option);
+      });
+    }
+    
+    // Перехід до тестування
+    window.startTest = function(testId) {
+      window.location.href = `quiz.html?test=${testId}`;
+    };
+    
+    // Ініціалізація
+    window.addEventListener('DOMContentLoaded', async () => {
+      try {
+        await loadConfig();
+        populateFilters();
+        renderTests(config.tests.filter(t => t.enabled));
+        
+        // Обробники подій
+        document.getElementById('searchInput').addEventListener('input', filterTests);
+        document.getElementById('categoryFilter').addEventListener('change', filterTests);
+        document.getElementById('difficultyFilter').addEventListener('change', filterTests);
+        
+        document.getElementById('clearFilters').addEventListener('click', () => {
+          document.getElementById('searchInput').value = '';
+          document.getElementById('categoryFilter').value = '';
+          document.getElementById('difficultyFilter').value = '';
+          filterTests();
+        });
+        
+        document.getElementById('statsBtn').addEventListener('click', () => {
+          window.location.href = 'stats.html';
+        });
+        
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+          window.location.href = 'settings.html';
+        });
+        
+        // Приховати loading
+        document.getElementById('loading').style.display = 'none';
+        
+      } catch (error) {
+        console.error('Failed to load:', error);
+        document.getElementById('loading').innerHTML = `
+          <div class="error-icon">❌</div>
+          <p>Помилка завантаження</p>
+          <p class="muted">${error.message}</p>
+        `;
+      }
+    });
+  </script>
 </body>
 </html>
