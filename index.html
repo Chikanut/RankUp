@@ -22,9 +22,14 @@
         </div>
       </div>
     </header>
+
+    <div id="navBar" style="display:none;margin-bottom:16px;">
+      <button class="btn-ghost" id="backBtn">← Назад</button>
+      <span id="breadcrumb" style="margin-left:12px;color:#9ca3af;"></span>
+    </div>
     
     <!-- Filters -->
-    <div class="filters-section">
+    <div class="filters-section" style="display:none;">
       <div class="search-box">
         <input 
           type="text" 
@@ -84,148 +89,151 @@
   
   <!-- Підключення скриптів -->
   <script type="module">
-    // Завантажити конфіг тестів
-    let config = null;
-    
-    async function loadConfig() {
-      const response = await fetch('data/tests.json');
-      config = await response.json();
-      return config;
-    }
-    
-    // Рендер карток тестів
-    function renderTests(tests) {
-      const grid = document.getElementById('testsGrid');
-      
-      if (tests.length === 0) {
-        grid.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">📭</div>
-            <h3>Тести не знайдено</h3>
-            <p class="muted">Спробуйте змінити фільтри</p>
-          </div>
-        `;
-        return;
-      }
-      
-      grid.innerHTML = tests.map(test => `
-        <div class="test-card" data-test-id="${test.id}">
-          <div class="test-icon">${test.icon}</div>
-          <h3 class="test-title">${test.title}</h3>
-          <p class="test-description">${test.description}</p>
-          
-          <div class="test-meta">
-            <span class="badge">${test.totalQuestions} питань</span>
-            <span class="badge">${test.estimatedTime}</span>
-            <span class="badge badge-${test.difficulty}">${getDifficultyText(test.difficulty)}</span>
-          </div>
-          
-          <div class="test-tags">
-            ${test.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
-          </div>
-          
-          <button class="btn-primary btn-block" onclick="startTest('${test.id}')">
-            Почати тест →
-          </button>
+   let config = null;
+let currentFolder = null; // null = корінь
+let navigationStack = []; // історія навігації
+
+async function loadConfig() {
+  const response = await fetch('data/tests.json');
+  config = await response.json();
+  return config;
+}
+
+function renderContent() {
+  const grid = document.getElementById('testsGrid');
+  const items = getCurrentItems();
+  
+  if (items.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><p>Пусто</p></div>';
+    return;
+  }
+  
+  grid.innerHTML = items.map(item => {
+    if (item.type === 'folder') {
+      return `
+        <div class="test-card" onclick="openFolder('${item.id}')">
+          <div class="test-icon">📁</div>
+          <h3 class="test-title">${item.name}</h3>
+          <p class="test-description">${item.description}</p>
+          <button class="btn-primary btn-block">Відкрити →</button>
         </div>
-      `).join('');
+      `;
+    } else {
+      return `
+        <div class="test-card">
+          <div class="test-icon">${item.icon}</div>
+          <h3 class="test-title">${item.title}</h3>
+          <p class="test-description">${item.description}</p>
+          <div class="test-meta">
+            <span class="badge">${item.totalQuestions} питань</span>
+            <span class="badge">${item.estimatedTime}</span>
+            <span class="badge badge-${item.difficulty}">${getDifficultyText(item.difficulty)}</span>
+          </div>
+          <button class="btn-primary btn-block" onclick="startTest('${item.id}')">Почати тест →</button>
+        </div>
+      `;
     }
-    
-    function getDifficultyText(difficulty) {
-      const map = {
-        'easy': 'Легко',
-        'medium': 'Середньо',
-        'hard': 'Складно'
-      };
-      return map[difficulty] || difficulty;
+  }).join('');
+  
+  updateNavigation();
+}
+
+function getDifficultyText(difficulty) {
+  const map = {'easy': 'Легко', 'medium': 'Середньо', 'hard': 'Складно'};
+  return map[difficulty] || difficulty;
+}
+
+function getCurrentItems() {
+  if (!currentFolder) {
+    // Корінь - показуємо папки верхнього рівня і тести без папки
+    const folders = (config.folders || []).map(f => ({...f, type: 'folder'}));
+    const testsInFolders = getAllTestIdsInFolders();
+    const rootTests = config.tests.filter(t => !testsInFolders.has(t.id));
+    return [...folders, ...rootTests];
+  }
+  
+  // Всередині папки
+  const folder = findFolderById(currentFolder);
+  if (!folder) return [];
+  
+  const items = [];
+  if (folder.children) {
+    items.push(...folder.children.map(f => ({...f, type: 'folder'})));
+  }
+  if (folder.tests) {
+    items.push(...config.tests.filter(t => folder.tests.includes(t.id)));
+  }
+  return items;
+}
+
+function findFolderById(id, folders = config.folders) {
+  for (let f of folders) {
+    if (f.id === id) return f;
+    if (f.children) {
+      const found = findFolderById(id, f.children);
+      if (found) return found;
     }
-    
-    // Фільтрація тестів
-    function filterTests() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const category = document.getElementById('categoryFilter').value;
-      const difficulty = document.getElementById('difficultyFilter').value;
-      
-      let filtered = config.tests.filter(test => test.enabled);
-      
-      // Пошук
-      if (searchTerm) {
-        filtered = filtered.filter(test =>
-          test.title.toLowerCase().includes(searchTerm) ||
-          test.description.toLowerCase().includes(searchTerm) ||
-          test.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-        );
-      }
-      
-      // Категорія
-      if (category) {
-        filtered = filtered.filter(test => test.category === category);
-      }
-      
-      // Складність
-      if (difficulty) {
-        filtered = filtered.filter(test => test.difficulty === difficulty);
-      }
-      
-      renderTests(filtered);
+  }
+  return null;
+}
+
+function getAllTestIdsInFolders(folders = config.folders) {
+  const ids = new Set();
+  const traverse = (items) => {
+    for (let item of items) {
+      if (item.tests) item.tests.forEach(id => ids.add(id));
+      if (item.children) traverse(item.children);
     }
-    
-    // Заповнити фільтр категорій
-    function populateFilters() {
-      const categoryFilter = document.getElementById('categoryFilter');
-      
-      config.categories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat.id;
-        option.textContent = `${cat.icon} ${cat.name}`;
-        categoryFilter.appendChild(option);
-      });
-    }
-    
-    // Перехід до тестування
-    window.startTest = function(testId) {
-      window.location.href = `quiz.html?test=${testId}`;
-    };
-    
-    // Ініціалізація
-    window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await loadConfig();
-        populateFilters();
-        renderTests(config.tests.filter(t => t.enabled));
-        
-        // Обробники подій
-        document.getElementById('searchInput').addEventListener('input', filterTests);
-        document.getElementById('categoryFilter').addEventListener('change', filterTests);
-        document.getElementById('difficultyFilter').addEventListener('change', filterTests);
-        
-        document.getElementById('clearFilters').addEventListener('click', () => {
-          document.getElementById('searchInput').value = '';
-          document.getElementById('categoryFilter').value = '';
-          document.getElementById('difficultyFilter').value = '';
-          filterTests();
-        });
-        
-        document.getElementById('statsBtn').addEventListener('click', () => {
-          window.location.href = 'stats.html';
-        });
-        
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-          window.location.href = 'settings.html';
-        });
-        
-        // Приховати loading
-        document.getElementById('loading').style.display = 'none';
-        
-      } catch (error) {
-        console.error('Failed to load:', error);
-        document.getElementById('loading').innerHTML = `
-          <div class="error-icon">❌</div>
-          <p>Помилка завантаження</p>
-          <p class="muted">${error.message}</p>
-        `;
-      }
-    });
+  };
+  traverse(folders);
+  return ids;
+}
+
+window.openFolder = function(folderId) {
+  navigationStack.push(currentFolder);
+  currentFolder = folderId;
+  renderContent();
+};
+
+window.goBack = function() {
+  if (navigationStack.length > 0) {
+    currentFolder = navigationStack.pop();
+    renderContent();
+  }
+};
+
+function updateNavigation() {
+  const navBar = document.getElementById('navBar');
+  const breadcrumb = document.getElementById('breadcrumb');
+  
+  if (currentFolder) {
+    navBar.style.display = 'block';
+    const folder = findFolderById(currentFolder);
+    breadcrumb.textContent = folder ? folder.name : '';
+  } else {
+    navBar.style.display = 'none';
+  }
+}
+
+window.startTest = function(testId) {
+  window.location.href = `quiz.html?test=${testId}`;
+};
+
+// Ініціалізація
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadConfig();
+  renderContent();
+  document.getElementById('backBtn').addEventListener('click', goBack);
+  document.getElementById('loading').style.display = 'none';
+    // Додай ці рядки:
+  document.getElementById('statsBtn').addEventListener('click', () => {
+    window.location.href = 'stats.html';
+  });
+  
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    window.location.href = 'settings.html';
+  });
+});
   </script>
 </body>
 </html>
