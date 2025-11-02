@@ -179,12 +179,26 @@ function findFolderById(id, folders = config.folders) {
 
 function getAllTestIdsInFolders(folders = config.folders) {
   const ids = new Set();
+  
+  // Перевірка на вході, якщо folders може бути не масивом
+  if (!Array.isArray(folders)) return ids; 
+
   const traverse = (items) => {
-    for (let item of items) {
-      if (item.tests) item.tests.forEach(id => ids.add(id));
-      if (item.children) traverse(item.children);
+    // items тепер гарантовано масив, якщо ми викликаємо це безпечно
+    for (let item of items) { 
+      
+      // Перевіряємо, чи item.tests є масивом
+      if (Array.isArray(item.tests)) {
+          item.tests.forEach(id => ids.add(id));
+      }
+      
+      // Перевіряємо, чи item.children є масивом перед рекурсією (головне виправлення)
+      if (Array.isArray(item.children)) {
+          traverse(item.children);
+      }
     }
   };
+  
   traverse(folders);
   return ids;
 }
