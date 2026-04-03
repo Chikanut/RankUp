@@ -42,6 +42,7 @@
           "name": "🏆 Курси лідерства середнього рівня",
           "description": "Підготовчі тести для курсів лідерства середнього рівня",
           "tests": [
+            "military-leadership-mid",
             "leadership-course"
           ]
         },
