@@ -42,7 +42,6 @@
           "name": "🏆 Курси лідерства середнього рівня",
           "description": "Підготовчі тести для курсів лідерства середнього рівня",
           "tests": [
-            "military-leadership-mid",
             "leadership-course"
           ]
         },
@@ -75,23 +74,6 @@
         "медицина"
       ],
       "enabled": true
-    },
-    {
-      "id": "military-leadership-mid",
-      "title": "Проміжні тести курсів лідерства середнього рівня",
-      "description": "Підготовка до здачі проміжних тестів курсів лідерства. 209 питань з 3 модулів.",
-      "icon": "🎖️",
-      "category": "military",
-      "dataFile": "data/tests/leadership_mid_tests.json",
-      "totalQuestions": 209,
-      "estimatedTime": "30 хв",
-      "difficulty": "medium",
-      "tags": [
-        "військові",
-        "лідерство",
-        "тактика"
-      ],
-      "enabled": false
     },
     {
       "id": "instructors-course",
