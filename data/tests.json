@@ -90,7 +90,7 @@
         "лідерство",
         "тактика"
       ],
-      "enabled": true
+      "enabled": false
     },
     {
       "id": "instructors-course",
