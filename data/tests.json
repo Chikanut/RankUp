@@ -1,7 +1,6 @@
 {
   "version": "0.5.0",
   "lastUpdated": "2025-11-02",
-  
   "plugins": {
     "multiple-choice": {
       "id": "multiple-choice",
@@ -32,8 +31,7 @@
       "enabled": true
     }
   },
-
-    "folders": [
+  "folders": [
     {
       "id": "theory",
       "name": "🎯 ЦПСС",
@@ -43,18 +41,21 @@
           "id": "leadership-mid",
           "name": "🏆 Курси лідерства середнього рівня",
           "description": "Підготовчі тести для курсів лідерства середнього рівня",
-          "tests": ["military-leadership-mid","leadership-course"]
+          "tests": [
+            "leadership-course"
+          ]
         },
         {
           "id": "instructors-mid",
           "name": "🧑‍🏫 Інструкторські курси базового рівня",
           "description": "Підготовчі тести для курсів інструкторів",
-          "tests": ["instructors-course"]
+          "tests": [
+            "instructors-course"
+          ]
         }
       ]
     }
   ],
-  
   "tests": [
     {
       "id": "leadership-course",
@@ -66,10 +67,15 @@
       "totalQuestions": 100,
       "estimatedTime": "30 хв",
       "difficulty": "easy",
-      "tags": ["військова справа", "лідерство", "тактика", "медицина"],
+      "tags": [
+        "військова справа",
+        "лідерство",
+        "тактика",
+        "медицина"
+      ],
       "enabled": true
     },
-      {
+    {
       "id": "military-leadership-mid",
       "title": "Проміжні тести курсів лідерства середнього рівня",
       "description": "Підготовка до здачі проміжних тестів курсів лідерства. 209 питань з 3 модулів.",
@@ -79,10 +85,14 @@
       "totalQuestions": 209,
       "estimatedTime": "30 хв",
       "difficulty": "medium",
-      "tags": ["військові", "лідерство", "тактика"],
+      "tags": [
+        "військові",
+        "лідерство",
+        "тактика"
+      ],
       "enabled": true
     },
-     {
+    {
       "id": "instructors-course",
       "title": "Вхідний контроль курс інструкторів",
       "description": "Підготовка до здачі вступних тестів курсів інструкторів. 150 питань з 3 модулів.",
@@ -92,11 +102,14 @@
       "totalQuestions": 150,
       "estimatedTime": "30 хв",
       "difficulty": "easy",
-      "tags": ["військові", "інструктори", "тактика"],
+      "tags": [
+        "військові",
+        "інструктори",
+        "тактика"
+      ],
       "enabled": true
     }
   ],
-  
   "categories": [
     {
       "id": "military",
